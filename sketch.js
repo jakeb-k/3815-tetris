@@ -36,7 +36,7 @@ function initBlock(){
   // need to randomly call them when creating the sprite
    
   angleMode(RADIANS);
-  if(colCount < 2) {
+  if(colCount <= 2) {
   s = createSprite(width/2 +10, height%20, 48, 148);
   dBlocks.add(s)  
   dBlocks.direction = HALF_PI; 

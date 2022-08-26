@@ -19,13 +19,17 @@ let gameRun = true;
 let setupConstr = 0;
 let textFly = 700; 
 let exiting = false; 
+let clearedLines = 0;
+let totalScore = 0; 
+let level = 1; 
+let mode = 'PvP'; 
 
 function preload(){
   arcadeFont = loadFont("SuperLegendBoy.ttf");
 }
 
 function setup(){
-  createCanvas(600,1100);
+  createCanvas(800,1100);
   background('black');  
   print(currentState); 
 }
@@ -99,18 +103,23 @@ function draw(){
   
 }
 
-// need to add ESC function to allow player to exit game
 function gamePlay(){
   background(125,125,125);
   gridDraw();
   dBlocks.collide(collideSprite, colliderBlock);  
-  dBlocks.collide(blocks, stopBlock); 
+  dBlocks.collide(blocks, stopBlock);
+  textSize(25); 
+  fill('black');
+  text('Total Score: '+totalScore, 700, 200); 
+  text('Lines Cleared: '+clearedLines, 700, 300); 
+  text('Current Mode: '+mode, 720, 400); 
+  text('Current Level: '+level, 700, 500); 
 }
 
 function gameSetup() {
   blocks = new Group();
   dBlocks = new Group();
-  createCanvas(600,1100);
+  createCanvas(900,1100);
   initBlock(); 
   collideSprite = createSprite(width/2, 1061, width, 50, physics='static'); 
   collideSprite.shapeColor = (125,125,125); 

@@ -18,7 +18,7 @@ let colCount = 0;
 let gameRun = true; 
 let setupConstr = 0;
 let textFly = 700; 
-
+let exiting = false; 
 
 function preload(){
   arcadeFont = loadFont("SuperLegendBoy.ttf");
@@ -85,7 +85,8 @@ function draw(){
               gameSetup(); 
               setupConstr ++; 
             }
-            gamePlay();
+            gamePlay(); 
+            gameEscape(); 
         break;
         case SCORE:
             scorePage();  
@@ -115,6 +116,37 @@ function gameSetup() {
   collideSprite.shapeColor = (125,125,125); 
   angleMode(RADIANS); 
 
+}
+
+function gameEscape() {
+  if(keyCode == ESCAPE){
+    fill('white'); 
+    rect(width/2, height/2, 500,200);
+    fill('black');
+    textSize(28);
+    text('QUIT GAME?', width/2, height/2-75);  
+    rect(width/2-100, height/2+50, 100, 50);
+    fill('white'); 
+    textSize(20); 
+    text('EXIT', width/2-100, height/2+50);
+    fill('black'); 
+    rect(width/2+100, height/2+50, 100, 50);
+    fill('white'); 
+    textSize(14); 
+    text('CONTINUE', width/2+100, height/2+50);
+    if(mouseIsPressed === true) {
+      if(mouseX >= 150 && mouseX <= 250 && mouseY >= 575 && mouseY <= 625){
+        collideSprite.remove();
+        dBlocks.remove();
+        blocks.remove(); 
+        currentState = MAIN_MENU;  
+        setupConstr = 0; 
+      }
+      if(mouseX >= 350 && mouseX <= 450 && mouseY >= 575 && mouseY <= 625){
+        s.speed = 5; 
+      }
+    }
+  }
 }
 
 function startUpPage(){
@@ -182,10 +214,14 @@ function keyReleased() {
     
   }
   if(keyCode == RIGHT_ARROW) {
-    s.x +=50;
-     
+    s.x +=50;   
+  }
+  if(keyCode == ESCAPE){
+   s.speed = 0;  
   }
 }
+
+
 
 function mousePressed() {
   widthConst = [75, 525];
@@ -194,17 +230,17 @@ function mousePressed() {
     if(mouseX > widthConst[0] && mouseX < widthConst[1]  && mouseY>heightConst[0] && mouseY< heightConst[1]) {
           fill('grey');
           currentState = GAME; 
-          print(currentState); 
+          
       }
     if(mouseX > widthConst[0] && mouseX < widthConst[1]  && mouseY>heightConst[0]+200 && mouseY< heightConst[1]+200) {
           fill('grey');
           currentState = SCORE; 
-          print(currentState); 
+           
       }
     if(mouseX > widthConst[0] && mouseX < widthConst[1]  && mouseY>heightConst[0]+400 && mouseY< heightConst[1]+400) {
           fill('grey');
           currentState = SETTINGS; 
-          print(currentState); 
+          
       }
   }
   if(currentState === SCORE || currentState === SETTINGS ){

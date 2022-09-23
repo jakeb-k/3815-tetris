@@ -1,83 +1,112 @@
 
-// need to add startup page, high score page and settings page
-// need to display all relevant information on said pages  
+//Below are the variables that determine the state of the game,
 const MAIN_MENU = 0; 
 const SETTINGS = 2;
 const SCORE = 3; 
 const HOW_TO = 4;
 const GAME = 5;
 
-
+//index used to cycle through saved scores
 let scoreIndex = 0; 
-let currentState = 0; 
+//initial variable that when altered will change the state of the game
+let currentState = 0;
+//the sprite variable 
 let s;
-let boxX;
-let boxY; 
-let collide; 
-let colCount = 0; 
-let gameRun = true; 
-let setupConstr = 0;
-let textFly = 700; 
-let exiting = false; 
-let clearedLines = 0;
-let totalScore = 0; 
-let level = 1; 
-let mode = 'PvP'; 
 
+//variable that allows control block init, so multiple blocks do not
+//init on collision with multiple blocks
+let colCount = 0; 
+
+//constraint that allows for functions that need to be called in the play
+//loop can be only called once
+let setupConstr = 0;
+
+//variable that will denote how many lines have been cleared 
+let clearedLines = 0;
+//score of the current session
+let totalScore = 0; 
+//the level the user is on
+let level = 1; 
+//the mode the user is in
+let mode = 'PvP'; 
+//the random block to be dropped
+let rBlock; 
+//the I tetronimo
+let iBlock;
+//the Z tetronimo
+let zBlock;
+//the T tetronimo
+let tBlock;
+//the O tetronimo
+let oBlock;
+//function responsible for pre-loading resources used
 function preload(){
   arcadeFont = loadFont("SuperLegendBoy.ttf");
+  tBlock = loadImage('./TBlock.png');
+  zBlock = loadImage('./ZBlock.png');
+  iBlock = loadImage('./IBlock.png');
+  oBlock = loadImage('./OBlock.png'); 
 }
-
+//initial function that is needed to start the program
 function setup(){
   createCanvas(800,1100);
-  background('black');  
-  print(currentState); 
+  background('black');   
 }
 
+//function that is reponsible for dropping blocks into the field
+//is called at start of game or on collision with another block,
 function initBlock(){
 
-  // need to create object array that defines different size blocks
-  // need to randomly call them when creating the sprite
-   
+  let r; 
+  r = Math.floor(Math.random() * 4) + 1;  
+  console.log(r); 
+  if(r == 1){
+    rBlock = iBlock;
+  } else if(r == 2){
+    rBlock = tBlock; 
+  } else if(r == 3){
+    rBlock = zBlock;
+  }else if(r == 4) {
+    rBlock = oBlock; 
+  }
   angleMode(RADIANS);
   if(colCount <= 2) {
-  s = createSprite(width/2 +10, height%20, 48, 148);
-  dBlocks.add(s)  
-  dBlocks.direction = HALF_PI; 
-  dBlocks.speed = 5;  
+  s = createSprite(width/2 -190, height%20, 48, 148); 
+  s.addImage(rBlock); 
+  s.direction = HALF_PI; 
+  s.speed = 5;
   }
 }
-
+//function called when a dropping block collides with a stopped block
+//or collider 
+//is reponsible for applying the stopped block characteristics 
 function stopBlock(sprite){
 
-  // have added the control, but colCount continues to add
-  // on single collision with another block
-  // and will inevitably stop dropping
-  
   colCount +=1; 
-  sprite.speed = 0;
-  sprite.direction = 0;
-  sprite.rotationLocked = true;  
-  sprite.immovable = true;  
-  dBlocks.remove(sprite); 
-  blocks.add(sprite); 
+  s.speed = 0;
+  s.direction = 0;
+  s.rotationLocked = true;  
+  s.immovable = true;  
+ 
+  blocks.add(s); 
   initBlock();   
 }
 
-
-function colliderBlock(sprite){
+//function that is responsible for stopping block when it collides with something
+function colliderBlock(sprite){ 
   colCount = 0;
-  sprite.speed = 0;
-  sprite.direction = 0;
-  sprite.rotationLocked = true;  
-  sprite.immovable = true;  
-  dBlocks.remove(sprite); 
-  blocks.add(sprite); 
+  s.speed = 0;
+  s.direction = 0;
+  s.rotationLocked = true;  
+  s.immovable = true;  
+  blocks.add(s); 
   initBlock();   
 
 }
 
-
+//in-built p5 function that loops continuously
+//used to check current state of game
+//as well as allow for navigation throughout
 function draw(){
   switch(currentState) {
         case MAIN_MENU:
@@ -89,8 +118,10 @@ function draw(){
               gameSetup(); 
               setupConstr ++; 
             }
+            strokeWeight(5); 
             gamePlay(); 
             gameEscape(); 
+            
         break;
         case SCORE:
             scorePage();  
@@ -102,12 +133,13 @@ function draw(){
   
   
 }
-
+//calls functions and variables that need to be updated throughout the 
+//runtime of the game
 function gamePlay(){
   background(125,125,125);
   gridDraw();
-  dBlocks.collide(collideSprite, colliderBlock);  
-  dBlocks.collide(blocks, stopBlock);
+  s.collide(collideSprite, colliderBlock);  
+  s.collide(blocks, stopBlock);
   textSize(25); 
   fill('black');
   text('Total Score: '+totalScore, 700, 200); 
@@ -115,18 +147,25 @@ function gamePlay(){
   text('Current Mode: '+mode, 720, 400); 
   text('Current Level: '+level, 700, 500); 
 }
-
+//function that sets up bottom and side colliders 
+//as well as initing the two groups(classes) of tetronimos
 function gameSetup() {
   blocks = new Group();
   dBlocks = new Group();
   createCanvas(900,1100);
-  initBlock(); 
-  collideSprite = createSprite(width/2, 1061, width, 50, physics='static'); 
-  collideSprite.shapeColor = (125,125,125); 
+  initBlock();  
+  collideSprite = createSprite(235, 1061, 1500, 150, physics='static'); 
+  vertCollideSprite = createSprite(-15,510,4,950, physics='static');
+  vertCollideSprite2 = createSprite(485,510,4,950, physics='static'); 
+  collideSprite.shapeColor = (125,125,125);
+  vertCollideSprite.shapeColor = (250,250,250); 
+  
   angleMode(RADIANS); 
 
 }
-
+//function used to navigate to quit game 
+//and removes all game objects if game is quit. 
+//as well as resume game as was, if user does not want to quit. 
 function gameEscape() {
   if(keyCode == ESCAPE){
     fill('white'); 
@@ -144,20 +183,23 @@ function gameEscape() {
     textSize(14); 
     text('CONTINUE', width/2+100, height/2+50);
     if(mouseIsPressed === true) {
-      if(mouseX >= 150 && mouseX <= 250 && mouseY >= 575 && mouseY <= 625){
+      if(mouseX >= 350 && mouseX <= 450 && mouseY >= 575 && mouseY <= 625){
         collideSprite.remove();
+        vertCollideSprite.remove();
+        vertCollideSprite2.remove(); 
+        s.remove(); 
         dBlocks.remove();
         blocks.remove(); 
         currentState = MAIN_MENU;  
         setupConstr = 0; 
       }
-      if(mouseX >= 350 && mouseX <= 450 && mouseY >= 575 && mouseY <= 625){
+      if(mouseX >= 550 && mouseX <= 650 && mouseY >= 575 && mouseY <= 625){
         s.speed = 5; 
       }
     }
   }
 }
-
+//function responsible for GUI of startUpPage
 function startUpPage(){
     background('black'); 
     fill('white');
@@ -170,6 +212,8 @@ function startUpPage(){
     text('JAKEB KNOWLES \n S517623 \n 3815ICT', width/2, height-150); 
 }
 
+//function responsilbe for GUI of score page
+//displays all previous high scores. 
 function scorePage(){
   background('black');
   fill('white'); 
@@ -197,7 +241,7 @@ function scorePage(){
     }  
   } 
 }
-
+//function responsible for displaying settings GUI 
 function settingsPage() {
   background('black');
   settingsBox();
@@ -212,26 +256,38 @@ function settingsPage() {
 
 }
 
-//add constraint to check if s.x % 50 is true and to move to
-// the closest multiple of 50 if not 
+//function responsible for moving the blocks, 
+//and checking that the move is valid and within the grid
+//also checks if the user has pressed esc button the exit 
 function keyReleased() {
-   if (keyCode === UP_ARROW) {    
-    s.rotation += HALF_PI; 
+  if(vertCollideSprite.overlap(s)!=true && vertCollideSprite2.overlap(s)!=true){
+    if(keyCode == LEFT_ARROW) {
+      s.x -=50;
+    }
+    if (keyCode === UP_ARROW) {    
+      s.rotation += HALF_PI; 
+    }
+    if(keyCode == RIGHT_ARROW) {
+      s.x +=50;   
+    }
+  } if (vertCollideSprite.overlap(s)==true) {
+    if(keyCode == RIGHT_ARROW) {
+      s.x +=50;   
+    }
   }
-  if(keyCode == LEFT_ARROW) {
-    s.x -=50;
-    
+  if (vertCollideSprite2.overlap(s)==true) {
+    if(keyCode == LEFT_ARROW) {
+      s.x -=50;
+    }
   }
-  if(keyCode == RIGHT_ARROW) {
-    s.x +=50;   
-  }
-  if(keyCode == ESCAPE){
+
+if(keyCode == ESCAPE){
    s.speed = 0;  
   }
 }
 
 
-
+//function that checks mouse position on click, to allow navigation
 function mousePressed() {
   widthConst = [75, 525];
   heightConst = [250, 350];
@@ -258,7 +314,7 @@ function mousePressed() {
     }
   }
 }
-
+//function that displays the navigation options on the startup page
 function navBox(){
   names = ['PLAY', 'SCORES', 'SETTINGS'];
   
@@ -281,7 +337,7 @@ function navBox(){
     }  
   }
 }
-
+//function that displays the settings options on the settings page
 function settingsBox(){
   names = ['Field Size', 'Game Lv', 'Normal or Extended Mode', 'Player or AI Mode'];
   
@@ -308,7 +364,7 @@ function settingsBox(){
 }  
 
 //add grid constraint function
-
+//this is the function that is responsible for drawing game grid
 function gridDraw() {
 	for(let i=35; i<=500; i+=50) {
 		for(let h=35; h<=1000;h+=50) {
